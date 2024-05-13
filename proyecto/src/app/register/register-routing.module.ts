@@ -15,3 +15,18 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class RegisterPageRoutingModule {}
+
+
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
+import { IonicModule } from '@ionic/angular';
+CommonModule,
+FormsModule,
+IonicModule,
+RegisterPageRoutingModule,
+ReactiveFormsModule
+],
+declarations: [RegisterPage]
+})
+export class RegisterPageModule {}
