@@ -26,16 +26,9 @@ const routes: Routes = [
         redirectTo: '/tabs/alumnos',
         pathMatch: 'full'
       }
-    ]
-  },
-  {
-    path: '',
-    redirectTo: '/tabs/alumnos',
-    pathMatch: 'full'
-  }
-];
-@NgModule({
-    imports: [RouterModule.forChild(routes)],
-    exports: [RouterModule],
-  })
-  export class TabsPageRoutingModule {}
+    ];
+    @NgModule({
+      imports: [RouterModule.forChild(routes)],
+      exports: [RouterModule],
+    })
+    export class TabsPageRoutingModule {}

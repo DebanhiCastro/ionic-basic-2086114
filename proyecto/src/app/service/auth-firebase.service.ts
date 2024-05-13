@@ -8,6 +8,8 @@ import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
 import { Lugar } from '../interface/lugar'; 
 
 const firebaseApp = initializeApp(environment.firebaseConfig);
+const firebaseApp = initializeApp(environment.firebaseConfig);
+const dbCloudFirestore = getFirestore(firebaseApp);
 
 @Injectable({
   providedIn: 'root'
@@ -63,5 +65,19 @@ async altaLugar(lugar: Lugar){
     .catch(error=>{
       console.log('Ocurrio un erro en el guardardo:'+error);
     });
+  } 
+  
+  updateLugares(id: any, lugar: any): Promise<any>{
+    const docRef = doc(this.db, 'lugar', id);
+    const lugarAux = {nombre: lugar.nombre,
+      ubicacion:{latitud:'', longitud:''}
+    };
+
+    return setDoc(docRef, lugarAux);
+  }
+
+  deleteLugar(id: any): Promise<any>{
+    const docRef = doc(this.db, 'lugar', id);
+    return deleteDoc(docRef);
   } 
 }
