@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Lugar } from '../interface/lugar';
 import { AuthFirebaseService } from '../service/auth-firebase.service';
+import { GoogleMapsComponent } from '../google-maps/google-maps.component';
+import { ModalController } from '@ionic/angular';
+
 @Component({
   selector: 'app-destinos',
   templateUrl: './destinos.page.html'
@@ -17,16 +20,16 @@ export class DestinosPage implements OnInit {
 
   constructor(
     private authService: AuthFirebaseService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private modalController: ModalController
   ) { 
-    
+
   }
   ngOnInit() {
     this.buildForm();
     this.authService.getLugares(this.destinos);
     this.getPosition();
   }
-
   buildForm(){
     this.ionicForm = this.formBuilder.group({
       nombre: new FormControl('',{validators: [Validators.required]})
@@ -35,7 +38,6 @@ export class DestinosPage implements OnInit {
   ionViewWillEnter(){
     this.authService.getLugares(this.destinos);
   }
-
   altaLugar(){
     this.lugar.latitud = this.latitud;
     this.lugar.longitud = this.longitud;
@@ -45,9 +47,9 @@ export class DestinosPage implements OnInit {
   }
 
   submitForm(){
+    this.lugar.latitud = this.latitud;
+    this.lugar.longitud = this.longitud;
     if(this.ionicForm.valid){
-      this.lugar.latitud = this.latitud;
-      this.lugar.longitud = this.longitud;
       this.lugar.nombre = this.ionicForm.get('nombre').value;
       if(!this.editando){
         this.authService.altaLugar(this.lugar).then((e:any)=>{
@@ -74,7 +76,10 @@ export class DestinosPage implements OnInit {
       this.ionicForm.controls[controlName].hasError(errorName) &&
       this.ionicForm.controls[controlName].touched;
   }  
+
   editarLugar(id: any, lugar: any) {
+    this.latitud = lugar.latitud;
+    this.longitud = lugar.longitud;
     this.editando = true;
     this.lugar = lugar;
     this.estado = "Editar el lugar";
@@ -93,6 +98,8 @@ export class DestinosPage implements OnInit {
     this.editando = false;
     this.ionicForm.reset();
     this.lugar = new Lugar();
+    this.latitud = 0;
+    this.longitud = 0;
   }
   getPosition(): Promise<any> {
 		return new Promise((resolve: any, reject: any): any => {
@@ -108,5 +115,31 @@ export class DestinosPage implements OnInit {
 				this.longitud = 0;
 			}, {timeout: 5000, enableHighAccuracy: true });
 		});
-	} 
+  } 
+
+  async addDirection(){
+    let positionInput: any = {
+      lat: this.editando? this.latitud:0,
+      lng: this.editando? this.longitud :0
+    };
+
+    const modalAdd = await this.modalController.create({
+      component: GoogleMapsComponent,
+      mode: 'ios',
+      //swipeToClose: true,
+      componentProps: {position: positionInput} 
+    });
+
+    await modalAdd.present();
+
+    const {data} = await modalAdd.onWillDismiss();
+
+    if(data){
+      console.log('data->', data);
+      //this.cli
+      this.longitud = data.pos.lng;
+      this.latitud = data.pos.lat;
+      console.log('datos de ubiciacion actualizados, latitud: '+this.latitud+' \nlongitud:'+this.longitud);
+    }
+  }  
 }
